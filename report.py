@@ -1,17 +1,19 @@
 from typing import Any, Dict
 
 def format_value(value: Any) -> str:
+
     """
     Превращает любое значение в читаемую строку.
     - Если значение None → возвращает «Не указано»
     - Если это список → превращает в строку через запятую
     - Иначе → просто приводит к строке
     """
+
     if value is None:
         return "Не указано"
 
     if isinstance(value, list):
-        # Если список из одного элемента — показываем просто элемент
+        # Если список из одного элемента — показывает просто элемент
         if len(value) == 1:
             return str(value[0])
         # Иначе — через запятую (для серверов имён и т.д.)
@@ -21,13 +23,9 @@ def format_value(value: Any) -> str:
 
 
 def print_report(data: Dict[str, Any]) -> None:
-    """
-    Выводит отчёт по домену в читаемом виде.
 
-    Параметры:
-        data (dict): словарь с 9 полями от data_processor.extract_report_data
-    """
-    # Отображаемые названия полей (человекопонятные)
+    """Выводит отчёт по домену в читаемом виде"""
+
     labels = {
         "domain_name": "Доменное имя",
         "registrant": "Владелец / организация",
@@ -45,60 +43,12 @@ def print_report(data: Dict[str, Any]) -> None:
     print("=" * 60)
 
     for key, label in labels.items():
+        # data.get(key) — безопасный доступ: если ключа нет, вернётся None, а не ошибка.
         raw_value = data.get(key)
+        # format_value превращает сырые данные в понятную строку.
         formatted_value = format_value(raw_value)
+        # f"{label:<35}" — выравнивание названия по левому краю в поле шириной 35 символов.
+        # Благодаря этому все двоеточия встают ровно в одну вертикальную линию.
         print(f"{label:<35} : {formatted_value}")
 
     print("=" * 60 + "\n")
-
-
-if __name__ == "__main__":
-    # Блок для быстрой проверки модуля (не для работы приложения!)
-    print("=== Запуск тестов report.py ===\n")
-
-    # Тест 1: все поля заполнены
-    full_data = {
-        "domain_name": "example-site.com",
-        "registrant": "ООО «Пример»",
-        "registrar": "REG.RU",
-        "registration_date": "2020-05-10",
-        "expiration_date": "2026-05-10",
-        "last_updated_date": "2024-03-01",
-        "name_servers": ["ns1.reg.ru", "ns2.reg.ru"],
-        "status": "active",
-        "country": "RU",
-    }
-    print("Тест 1 — полный отчёт:")
-    print_report(full_data)
-
-    # Тест 2: много полей отсутствует (симуляция приватности)
-    partial_data = {
-        "domain_name": "private-domain.com",
-        "registrant": None,
-        "registrar": None,
-        "registration_date": None,
-        "expiration_date": None,
-        "last_updated_date": None,
-        "name_servers": None,
-        "status": None,
-        "country": None,
-    }
-    print("Тест 2 — отчёт с отсутствующими данными:")
-    print_report(partial_data)
-
-    # Тест 3: список серверов имён из нескольких элементов
-    multi_ns_data = {
-        "domain_name": "multi-ns.com",
-        "registrant": "Ivan Ivanov",
-        "registrar": "Beget",
-        "registration_date": "2019-01-01",
-        "expiration_date": "2025-01-01",
-        "last_updated_date": None,
-        "name_servers": ["ns1.beget.com", "ns2.beget.com", "ns3.beget.com"],
-        "status": "ok",
-        "country": "RU",
-    }
-    print("Тест 3 — отчёт с несколькими серверами имён:")
-    print_report(multi_ns_data)
-
-    print("=== Тесты report.py пройдены ===")
